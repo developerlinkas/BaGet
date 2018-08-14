@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using BaGet.Core.Mirror;
 using BaGet.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Packaging.Core;
@@ -46,12 +47,10 @@ namespace BaGet.Controllers
             // Allow read-through caching if it is configured.
             await _mirror.MirrorAsync(id, nugetVersion);
 
-            if (!await _packages.ExistsAsync(id, nugetVersion))
+            if (!await _packages.AddDownloadAsync(id, nugetVersion))
             {
                 return NotFound();
             }
-
-            await _packages.AddDownloadAsync(id, nugetVersion);
 
             var identity = new PackageIdentity(id, nugetVersion);
             var packageStream = await _storage.GetPackageStreamAsync(identity);
